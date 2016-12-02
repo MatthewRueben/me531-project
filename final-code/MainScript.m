@@ -8,7 +8,7 @@
 
 %Setting up equations
 
-%testing git
+%testing git MERGE
 
 %Getting KE
 
@@ -33,6 +33,7 @@ Substitute
 A1= subs (A,[l,m,g],[2, 4, 9,81])
 A2 = Double (A1)
 
+%testing git merge 
 
 %get conver to canon
 
