@@ -20,7 +20,7 @@ C = [1 0];  % TESTING
 
 %% Choose parameters
 my_l = 1.0;  % m
-my_m = 2.0;  % kg
+my_m = 1.0;  % kg
 my_A = subs(A,[l m],[my_l my_m]);
 my_B = subs(B,[l m],[my_l my_m]);
 my_C = C;  % for completeness
@@ -34,6 +34,10 @@ P = to_P(my_A,my_B);
 display(rank(P), 'Rank of P')
 display(size(my_A), 'Size of A')
 
+% How controllable?
+SVs_P = svd(P);  % singular values
+display(SVs_P, 'Singular values of P')
+
 % CCF.
 [A_ccf, B_ccf, C_ccf, M] = to_CCF(my_A, my_B, my_C);
 display(A_ccf)
@@ -44,9 +48,12 @@ display(C_ccf)
 %% Design a controller
 % A_eq = A + BK
 % Choose critically damped with 2 poles
-lambda = 1.0;
+lambda = 2.0;
+syms s
+char_poly = (s+lambda)*(s+lambda);
+a = coeffs(char_poly);  % these are in REVERSE ORDER
 A_eq = [0          1;
-        -lambda^2 -2*lambda];
+        -1*a(1:end-1)];
 display(A_eq)
 
 % Calculate K in CCF
@@ -55,7 +62,7 @@ K_ccf = dif(end,:)./B_ccf(end);
 
 % Transform K back to natural coordinates
 K = K_ccf * inv(M);
-display(K)
+display(eval(K), 'K')
 
 
 %% Is it observable? How observable?
@@ -63,6 +70,10 @@ display(K)
 Q = to_Q(my_A, my_C);
 display(rank(Q), 'Rank of Q')
 display(size(A), 'Size of A')
+
+% How observable?
+SVs_Q = svd(Q);  % singular values
+display(SVs_Q, 'Singular values of Q')
 
 % COF from CCF.
 A_obs = A_ccf';
