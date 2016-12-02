@@ -8,7 +8,21 @@
 
 %Setting up equations
 
-%testing git MERGE
+syms m1 m2 L1 L2 L0 % variables
+syms th1 dth1 ddth1 th2 dth2 ddth2   % state variables
+syms T  % inputs
+% state = [th dt]';
+% state_deriv = [dx ddx]';
+
+%Knowing that KEtranslational= 1/2*mv^2
+%KE Rotational=1/2*I*w^2, and dth is velocity
+%I - moment of intertia of a pivoting bar = 1/3*m*l^2
+%I - moment of intertia of a piont mass= m*l^2
+eqKE = (m1*l1^2*dth1^2)/6 + 0.5 *m2* (L0*th)^2
+eqPE = 1/2 * k * x^2; 
+forces_or_torques = [T];
+set_point = [0.10   0.0];  % release from 10cm
+
 
 %Getting KE
 
