@@ -39,7 +39,7 @@ SVs_P = svd(P);  % singular values
 display(SVs_P, 'Singular values of P')
 
 % CCF.
-[A_ccf, B_ccf, C_ccf, M] = to_CCF(my_A, my_B, my_C);
+[A_ccf, B_ccf, C_ccf, M_for_P] = to_CCF(my_A, my_B, my_C);
 display(A_ccf)
 display(B_ccf)
 display(C_ccf)
@@ -52,16 +52,16 @@ lambda = 2.0;
 syms s
 char_poly = (s+lambda)*(s+lambda);
 a = coeffs(char_poly);  % these are in REVERSE ORDER
-A_eq = [0          1;
+A_eq_ctl = [0          1;
         -1*a(1:end-1)];
-display(A_eq)
+display(A_eq_ctl)
 
 % Calculate K in CCF
-dif = (A_eq - A_ccf);
+dif = (A_eq_ctl - A_ccf);
 K_ccf = dif(end,:)./B_ccf(end);
 
 % Transform K back to natural coordinates
-K = K_ccf * inv(M);
+K = K_ccf * inv(M_for_P);
 display(eval(K), 'K')
 
 
@@ -75,9 +75,42 @@ display(size(A), 'Size of A')
 SVs_Q = svd(Q);  % singular values
 display(SVs_Q, 'Singular values of Q')
 
-% COF from CCF.
-A_obs = A_ccf';
-B_obs = C_ccf';
-C_obs = B_ccf';
+% Don't do it this way anymore, says Dr. Hatton! 
+% % COF from CCF.
+% A_obs = A_ccf';
+% B_obs = C_ccf';
+% C_obs = B_ccf';
+
+% COF from Q.
+Q_inv = inv(Q);
+q = Q_inv(:,end);
+M_inv = [q, my_A*q];
+M_for_Q = inv(M_inv);
+A_cof = M_for_Q * my_A * M_inv;  % Note that these are *backwards* transforms
+B_cof = M_for_Q * my_B;
+C_cof = my_C * M_inv;
+display(A_cof)
+display(B_cof)
+display(C_cof)
+
+
+%% Design an observer
+% A_eq = A - LC
+% Choose critically damped with 2 poles
+lambda = 2.0 * 10;  % 10x faster than controller
+syms s
+char_poly = (s+lambda)*(s+lambda);
+a = coeffs(char_poly);  % these are in REVERSE ORDER
+A_eq_obs = [0          1;
+            -1*a(1:end-1)]';  % note transpose relative to CCF
+display(A_eq_obs)
+
+% Calculate L in COF
+dif = (A_cof - A_eq_obs);
+L_cof = dif(:,end)./C_cof(end);
+
+% Transform L back to natural coordinates
+L = M_for_Q * L_cof;
+display(eval(L), 'L')
 
 
