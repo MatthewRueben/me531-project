@@ -8,6 +8,7 @@
 
 %Setting up equations
 
+%testing git
 
 %Getting KE
 
