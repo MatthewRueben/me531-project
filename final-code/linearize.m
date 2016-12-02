@@ -22,10 +22,5 @@ function eqL = get_linearized_function(eqNL,var,pivot)
     eqL = f0;
 end
 
-%function eqL =linearized(eqNL)
-%Helper function to linearize
-%INPUTS eqNL is our non linear equation.
-%OUTPUT:eqL is our linear equation. 
 
-%end
     
