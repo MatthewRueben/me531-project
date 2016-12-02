@@ -8,7 +8,7 @@
 
 %Setting up equations
 
-%testing git
+%testing git MERGE
 
 %Getting KE
 
