@@ -10,16 +10,20 @@
 
 syms m1 m2 L1 L2 L0 g % system consts
 system_consts = [m1 m2 L1 L2];
-g = 8.91; % need a double? 
+%g = 9.81; % need a double? 
 syms th1 dth1 ddth1 th2 dth2 ddth2   % state variables
 state = [th1 dth1 th2 dth2];
 state_deriv = [dth1 ddth1 dth2 ddth2];
 state_vars = [th1 dth1 ddth1 th2 dth2 ddth2];
+%Pose where system is balanced and linerized around. 
+equilibrium_pose = [0.10 0.0 0.0   0.0 0.0 0.0];  
 
 syms T  % inputs
-forces_or_torques = [T];
+torques = [T];
 
-%Setting up the Kinematic equations
+
+
+%% Setting up the Kinematic equations
 %% Finding the KE 
 %Knowing that KEtranslational= 1/2*mv^2
 %KE Rotational=1/2*I*w^2, and dth is velocity
@@ -30,10 +34,6 @@ eqKE = (m1*L1^2*dth1^2)/6 + 0.5 *m2*...
 
 %% Finding PE
 eqPE = m1*g*L1*sin(th1)/2 + m2*g*(L1*sin(th1) +L2*sin(th1 +th2)); 
-
-
-
-
 
 %% Now use the kinematic equations to in the Lagrangian to find the equations of motion
 
@@ -46,31 +46,29 @@ eqPE = m1*g*L1*sin(th1)/2 + m2*g*(L1*sin(th1) +L2*sin(th1 +th2));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-start_pose = [0.10   0.0   0.0];  % release from this starting pose 10cm
-%%%%%%&&&&&&&Make this the same size as "Var" or the state_var
 
-%Setting up the Kinematic equestions  
+%Setting up the Kinematic equations  
 Lag = eqPE - eqKE; % so eqn should be dL/dx - d/dt(dL/dx_dot) = F|tau
 
 %Replacing symbolic with real values
-real_const_vals = [2.0 5.0 1 1];  % for the constants
-Lag = subs(Lag, system_consts, real_const_vals);
+% real_const_vals = [2.0 5.0 1 1];  % for the constants
+% Lag = subs(Lag, system_consts, real_const_vals);
 
 % Do Lagrange equation
 addpath ./external-code  % so we can call Lagrange() from inside a folder
-eqns = Lagrange(Lag, state_vars);
-display(eqns)
+eqNLSystem = Lagrange(Lag, state_vars);
+disp('Nonlinear system equation:')
+display(eqNLSystem)
 
-% Solve for feed-forward force or torque
-ffF = -1 * subs(eqns(1), state_vars, start_pose);
-display(ffF)
+%% Solve for feed-forward torque at equilibrium_pose
+equilibrium_force = -1 * subs(eqNLSystem(1), state_vars, equilibrium_pose);
+disp('The force needed to keep system stable at the equilibrium_pose:')
+disp(equilibrium_force)
 
-
-%settling pose to discrrize around == real values  (Pivot)
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+%% Now linerize the system_equations of motion around the equilibrium_pose
 %eqL = get_linearized_function(eqNL,var,pivot)
-%%  function eqNL =linearize(eqNL)
+%  function eqNL =linearize(eqNL)
 %Helper function to linearize
 %INPUTS eqNL is our non linear equation. fft, about a piont. stable
 %OUTPUT:eqL is our linear equation. (wil retrurn symbolic equation)
@@ -80,8 +78,9 @@ display(ffF)
 % % % A1= subs (A,[l,m,g],[2, 4, 9,81])
 % % % A2 = Double (A1)
 
-
-
+eqLSystem = linearize(eqNLSystem,state_vars,equilibrium_pose);
+disp('Linear system equations evaluated around equilibrium_pose:')
+disp(eqLSystem)
 %get conver to canon
 
 
