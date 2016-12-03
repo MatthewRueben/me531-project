@@ -82,12 +82,18 @@ eqLSystem = linearize(eqNLSystem,state_vars,equilibrium_pose);
 disp('Linear system equations evaluated around equilibrium_pose:')
 disp(eqLSystem)
 %get conver to canon
-
+    
 
 %% Here we are extracting our coefficients
 %Set up:
 
 %% Simulate and Animate natural system without any torque
+
+%call an ODE function that plots and animates it
+% function ODEsim_PlotAni(tend, eqNL)
+% Uses ODE45 to plot and to animate system
+% Takes in tend, time variable and eqNL
+
 
 %% function Ks =DesignController(eqL, lambdas)
 % Created controller for system
