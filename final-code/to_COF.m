@@ -2,11 +2,6 @@ function [A_cof, B_cof, C_cof, M] = to_COF(A,B,C)
 % [A_cof, B_cof, C_cof, M] = to_COF(A,B,C)
 %   Converts A, B, C matrices to canonical observable form.
 
-% COF from Q.
-A_cof = M * A * M_inv;  % Note that these are *backwards* transforms
-B_cof = M * B;
-C_cof = C * M_inv;
-
 
 %% Create Q
 Q = to_Q(A,C);
