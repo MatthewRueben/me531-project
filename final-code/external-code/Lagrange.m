@@ -41,8 +41,8 @@ Vt=V;
         Vt(cont0*3)=diff(Vt((cont0*3)-2),t,2);
     end
     for cont0=1:1:Var
-        L1=simple(diff(Lag,V(cont0*3-1)));
-        L2=simple(diff(Lag,V(cont0*3-2)));
+        L1=simplify(diff(Lag,V(cont0*3-1)));  % changed from simple()
+        L2=simplify(diff(Lag,V(cont0*3-2)));  % changed from simple()
         Dposx=L1;
 
         for cont=1:1:Var*3         
@@ -54,7 +54,7 @@ Vt=V;
              L1=subs(L1,Vt(cont),V(cont));
         end
         L1F=L1-L2;
-        L1F=simple(expand(L1F));
+        L1F=simplify(expand(L1F));  % changed from simple()
         L1F=collect(L1F,Vt(cont0*3));%*****************
         M(cont0)=L1F;
     end
