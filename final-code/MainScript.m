@@ -19,7 +19,8 @@ state = [th1 dth1 th2 dth2];
 state_deriv = [dth1 ddth1 dth2 ddth2];
 state_vars = [th1 dth1 ddth1 th2 dth2 ddth2];
 %Pose where system is balanced and linerized around. 
-equilibrium_pose = [0.10 0.0 0.0   0.0 0.0 0.0];  
+equilibrium_pose = [deg2rad(60.0) 0.0 0.0
+                    deg2rad(78.6) 0.0 0.0];  
 
 syms T  % inputs
 torques = [0, T];
