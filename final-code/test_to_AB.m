@@ -1,5 +1,5 @@
 %% Tests to_AB.m
-
+%syms x dx y dy %Line added by Wendy sat night to debug..
 eom = [ 2*dx + x + 5, 
     5*dx + dy + 2*x - 2];  % some fake linear equations of motion
 
