@@ -24,5 +24,6 @@ function eqL = get_linearized_function(eqNL,var,pivot)
     eqL = f0;
 end
 
-
+%Note from Wendy: Duy, size may give rows first then col.... we can check
+%this if things aren't working. 
     
