@@ -6,6 +6,9 @@
 
 %% Starting with getting our Kinematics equations
 
+%Clearing workspace
+clear
+
 %Setting symbolic and variables
 
 syms m1 m2 L1 L2 L0 g % system consts
@@ -19,9 +22,7 @@ state_vars = [th1 dth1 ddth1 th2 dth2 ddth2];
 equilibrium_pose = [0.10 0.0 0.0   0.0 0.0 0.0];  
 
 syms T  % inputs
-torques = [T];
-
-
+torques = [0, T];
 
 %% Setting up the Kinematic equations
 %% Finding the KE 
@@ -37,16 +38,6 @@ eqPE = m1*g*L1*sin(th1)/2 + m2*g*(L1*sin(th1) +L2*sin(th1 +th2));
 
 %% Now use the kinematic equations to in the Lagrangian to find the equations of motion
 
-%function [FTT , eqNL] = lagrangian(eqKE, eqPE) 
-% For using kinematics to find equations of motion for the system. 
-%INPUTS: eqKE is the Kinetic Energy equation,and eqPE is our Potential
-%Energy
-%OUTPUT: FFT is the Feed Forward Torque needed to keep our system in a
-%balence pose. eqNL is our non linear equation.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 %Setting up the Kinematic equations  
 Lag = eqPE - eqKE; % so eqn should be dL/dx - d/dt(dL/dx_dot) = F|tau
 
@@ -56,31 +47,32 @@ Lag = eqPE - eqKE; % so eqn should be dL/dx - d/dt(dL/dx_dot) = F|tau
 
 % Do Lagrange equation
 addpath ./external-code  % so we can call Lagrange() from inside a folder
-eqNLSystem = Lagrange(Lag, state_vars);
-%unusable_eqNLSystem = Lagrange(Lag, state_vars);
+%eqNLSystem = Lagrange(Lag, state_vars);
+unusable_eqNLSystem = Lagrange(Lag, state_vars);
 %eqNLSystem = un_uglifier(unusable_eqNLSystem)
-disp('Nonlinear system equation:')
-display(eqNLSystem)
-% display(eqNLSystem_file)
-% display('wendy.doc')
+disp('Unsuable Nonlinear system equation:')
+display(unusable_eqNLSystem)
+
+%% Turns unusable_eqNLSystem equations to usable eqNLSystem
+%The elements need to be set properly to equal ddth1 and ddth2
+%End result is a usable eqNLSystem
+
+%solve_sol = solve(unusable_eqNLSystem == torques, [ddth1, ddth2]);
+[eqNLSystem(1), eqNLSystem(2)] = solve(unusable_eqNLSystem == torques, [ddth1, ddth2]);
+
+% eqNLSystem(1) = simplify(solve_sol.ddth1);
+% eqNLSystem(2) = simplify(solve_sol.ddth2);
+disp(simplify(eqNLSystem))
 
 %% Solve for feed-forward torque at equilibrium_pose
 equilibrium_force = -1 * subs(eqNLSystem(1), state_vars, equilibrium_pose);
 disp('The force needed to keep system stable at the equilibrium_pose:')
 disp(equilibrium_force)
-
  
 %% Now linerize the system_equations of motion around the equilibrium_pose
-%eqL = get_linearized_function(eqNL,var,pivot)
-%  function eqNL =linearize(eqNL)
-%Helper function to linearize
-%INPUTS eqNL is our non linear equation. fft, about a piont. stable
-%OUTPUT:eqL is our linear equation. (wil retrurn symbolic equation)
-% % % EquilibriumForceRequired 
-% % % In symbolic 
-% % % Substitute 
-% % % A1= subs (A,[l,m,g],[2, 4, 9,81])
-% % % A2 = Double (A1)
+
+% % % EquilibriumForceRequired not req for linerizing
+
 
 eqLSystem = linearize(eqNLSystem,state_vars,equilibrium_pose);
 disp('Linear system equations evaluated around equilibrium_pose:')
@@ -91,6 +83,19 @@ disp(eqLSystem)
 %% Here we are extracting our coefficients
 %Set up:
 
+%add Matt's to_AB code
+
+%% Set up with real values to create specific system
+% Real values will allow us to simulate and make contgollers, observers.
+
+% Add the T to the eqSystems as a symbol. 
+% Controller (K *state_variables)=Torque
+% Use Mat lab solve to reaarange eqNLSystem into equations of motion
+% % % In symbolic 
+% % % Substitute 
+% % % A1= subs (A,[l,m,g],[2, 4, 9,81])
+% % % A2 = Double (A1)
+
 %% Simulate and Animate natural system without any torque
 
 %call an ODE function that plots and animates it
@@ -98,11 +103,11 @@ disp(eqLSystem)
 % Uses ODE45 to plot and to animate system
 % Takes in tend, time variable and eqNL
 
+% function ODEsimani (tend, eqNL)
+% Uses ODE45 to plot and to animate system
+% Takes in tend, time variable and eqNL
 
-%% Set up with real values to create specific system
-% Add the T to the eqSystems as a symbol. 
-% Controller (K *state_variables)=Torque
-% Use Mat lab solve to reaarange eqNLSystem into equations of motion
+
 %% function Ks =DesignController(eqL, lambdas)
 % Created controller for system
 %INPUTS: eqL, takes in linear equation of motion, lambdas are the poles
@@ -113,6 +118,12 @@ disp(eqLSystem)
 % % % id equilibrium balances, then no e torque
 % % % k= place(A,B, [ 1, 2]);
 
+%% Simulate and Animate with contollers 
+
+% function ODEsimani (tend, eqNL)
+% Uses ODE45 to plot and to animate system
+% Takes in tend, time variable and eqNL
+
 %% function Ls =DesignObserver(eqL, lambdas)
 % Creates observer for system
 %INPUTS: eqL, takes in linear equation of motion, lambdas are the poles
@@ -122,8 +133,9 @@ disp(eqLSystem)
 
 %% Simulate and Animate with observers 
 
+% might have to do some differrnt plotting to show this. 
 
-%% function ODEsimani (tend, eqNL)
+% function ODEsimani (tend, eqNL)
 % Uses ODE45 to plot and to animate system
 % Takes in tend, time variable and eqNL
 
