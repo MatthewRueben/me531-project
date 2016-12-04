@@ -57,8 +57,12 @@ Lag = eqPE - eqKE; % so eqn should be dL/dx - d/dt(dL/dx_dot) = F|tau
 % Do Lagrange equation
 addpath ./external-code  % so we can call Lagrange() from inside a folder
 eqNLSystem = Lagrange(Lag, state_vars);
+%unusable_eqNLSystem = Lagrange(Lag, state_vars);
+%eqNLSystem = un_uglifier(unusable_eqNLSystem)
 disp('Nonlinear system equation:')
 display(eqNLSystem)
+% display(eqNLSystem_file)
+% display('wendy.doc')
 
 %% Solve for feed-forward torque at equilibrium_pose
 equilibrium_force = -1 * subs(eqNLSystem(1), state_vars, equilibrium_pose);
@@ -95,6 +99,10 @@ disp(eqLSystem)
 % Takes in tend, time variable and eqNL
 
 
+%% Set up with real values to create specific system
+% Add the T to the eqSystems as a symbol. 
+% Controller (K *state_variables)=Torque
+% Use Mat lab solve to reaarange eqNLSystem into equations of motion
 %% function Ks =DesignController(eqL, lambdas)
 % Created controller for system
 %INPUTS: eqL, takes in linear equation of motion, lambdas are the poles
