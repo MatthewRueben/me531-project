@@ -58,12 +58,20 @@ display(unusable_eqNLSystem)
 %The elements need to be set properly to equal ddth1 and ddth2
 %End result is a usable eqNLSystem
 
-%solve_sol = solve(unusable_eqNLSystem == torques, [ddth1, ddth2]);
-[eqNLSystem(1), eqNLSystem(2)] = solve(unusable_eqNLSystem == torques, [ddth1, ddth2]);
+try
+    %solve_sol = solve(unusable_eqNLSystem == torques, [ddth1, ddth2]);
+    [eqNLSystem(1), eqNLSystem(2)] = solve(unusable_eqNLSystem == torques, [ddth1, ddth2]);
+catch e
+    display('WARNING: solve() didn''t work. Loading default NL equations.')
+    load('solved_for_ddTheta.mat')
+end
 
 % eqNLSystem(1) = simplify(solve_sol.ddth1);
 % eqNLSystem(2) = simplify(solve_sol.ddth2);
-disp(simplify(eqNLSystem))
+disp('Now with torques and solved for ddTheta1 and ddTheta2:')
+disp(simplify(eqNLSystem(1)))
+disp(simplify(eqNLSystem(2)))
+
 
 %% Solve for feed-forward torque at equilibrium_pose
 equilibrium_force = -1 * subs(eqNLSystem(1), state_vars, equilibrium_pose);
