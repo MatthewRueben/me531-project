@@ -21,15 +21,16 @@
 %
 % *Pendulum on a movable support*
 % 
-% syms x dx ddx theta dtheta ddtheta t m M   %Define the symbolic variables.
+% syms x dx ddx theta dtheta ddtheta t m M l g   %Define the symbolic variables.
 % 
-% L=0.5*(M+m)+dx^2+ m*dx*l*dtheta*cos(theta)+ ...
+% L=0.5*(M+m)*dx^2+ m*dx*l*dtheta*cos(theta)+ ...
 % 0.5*m*l^2*dtheta^2+m*g*l*cos(theta)        %Define the Lagragian.
 % Equations=Lagrange(L,[theta,dtheta,ddtheta,x,dx,ddx]) %Calculate the
 % equations
 % 
 % returns   [  m*l*(ddx*cos(theta)+l*ddtheta+g*sin(theta)),
-%              2*ddx+m*l*ddtheta*cos(theta)-m*l*dtheta^2*sin(theta)]
+%              (M+m)*ddx+m*l*ddtheta*cos(theta)-m*l*dtheta^2*sin(theta)]
+% Matt Rueben validated this example on the whiteboard 04-Dec-2016
 
 function [M]=Lagrange(Lag,V)
 syms t;

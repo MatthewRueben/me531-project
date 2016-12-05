@@ -81,8 +81,10 @@ end
 
 % eqNLSystem(1) = simplify(solve_sol.ddth1);
 % eqNLSystem(2) = simplify(solve_sol.ddth2);
-disp('Now with torques and solved for ddTheta1 and ddTheta2:')
+disp('Now with torques and solved for ddTheta1 and ddTheta2')
+disp('ddTheta1:')
 disp(simplify(eqNLSystem(1)))
+disp('ddTheta2:')
 disp(simplify(eqNLSystem(2)))
 
 
@@ -92,8 +94,12 @@ disp(simplify(eqNLSystem(2)))
 
 
 eqLSystem = linearize(eqNLSystem,state_vars,equilibrium_pose);
-disp('Linear system equations evaluated around equilibrium_pose:')
-disp(eqLSystem)
+disp('Now linearized around equilibrium_pose')
+disp('ddTheta1:')
+disp(simplify(eqLSystem(1)))
+disp('ddTheta2:')
+disp(simplify(eqLSystem(2)))
+
 %get conver to canon
     
 
