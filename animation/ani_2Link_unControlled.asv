@@ -28,8 +28,7 @@ function animation_demonstration(export,skip)
     tend = 5;
     
     % Do the math needed
-    
-    sol= ode45Make();
+   % sol= ode45Make();
     
 	%%%%%%%%
 	% Create animation elements, and store them in the frame_info structure
@@ -136,13 +135,12 @@ function sol = ode45Make()
 % at time tau on a range of 0 to 1
 function frame_info = animation_demo_draw_cosine(frame_info,tau)
     global tend
-    global sol
 	% Declare a baseline set of points at which to evaluate the cosine
 	% function
 	%x_full = linspace(0,2*pi,300)';
     %"Position" 
     %y_t= 2*pi*tau;
-    theta= deval(sol,tend*tau);
+    theta= deval(ode45Make(),tend*tau);
     theta1 = theta(1);
     theta2 = theta(3);
     

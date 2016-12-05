@@ -1,4 +1,4 @@
-function animation_demonstration(export,skip)
+function animation_demonstration(export,skip, solv, timeend)
 % Produces two simple movies, to demonstrate usage of the ANIMATION
 % function for exporting movie frames
 %
@@ -21,15 +21,17 @@ function animation_demonstration(export,skip)
 		
     end
 
+    global sol
     
+    sol= solv;
     %%%%%%%
     %lenght of vid
     global tend
-    tend = 5;
+    tend = timeend;
     
     % Do the math needed
     
-    sol= ode45Make();
+   % sol= ode45Make();
     
 	%%%%%%%%
 	% Create animation elements, and store them in the frame_info structure
@@ -84,51 +86,7 @@ function h = animation_demo_create_elements
 
 end
 
-%%%%%%%%%%%
-%Making the ODE45
-function sol = ode45Make()
-    global tend
 
-    tspan = [0 tend];
-
-    %Initial condition with link at 45 degrees or sqrt2/2 radians
-    theta0= [pi/4
-            0
-            pi/2
-            0];
-
-       
-    %Setting variables and equations
-    g=9.81;
-    mAB=2;
-    mBC=1;
-    lAB=0.5;
-    lBC =0.25;
-    
-    %setting the bottom as a var to simplify
-    W=(1/3)*mAB*lAB^2;
-    W2=2*mBC*lBC^2;
-    
-    %theta martix
-%     theta = [1thetaA
-%             2thetadotA
-%             3thetaB
-%             4thetadotB]
-       
-    sol = ode45(@f,tspan,theta0);
-   
-    function thetadot = f(t,theta)
-    thetadot =  zeros(4,1);
-    thetadot(1)= theta(2);
-    %thetaA
-    thetadot(2)= (   -(0.5*mAB+ mBC)*g*lAB*cos(   theta(1)  ) - mBC*g*lBC*cos(   theta(1) + theta(3)  )  )/W;
-    thetadot(3)= theta(4);
-    %thetaB
-    thetadot(4)= (-mBC*g*lBC*cos(     theta(1) + theta(3)     )   )/W2;
-    
-    end
-    
-  end
 
 
 %%%%%%%%%%%%%%%%%%
