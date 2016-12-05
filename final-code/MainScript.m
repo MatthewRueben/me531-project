@@ -38,7 +38,8 @@ torques = [0, T];
 %I - moment of intertia of a pivoting bar = 1/3*m*l^2
 %I - moment of intertia of a piont mass= m*l^2
 eqKE = (m1*L1^2*dth1^2)/6 + 0.5 *m2*...
-( L1^2* dth1^2 + L2^2*(dth1+dth2)^2 + L1*L2*cos(dth2)*(dth1^2+dth1*dth2));
+( L1^2* dth1^2 + L2^2*(dth1+dth2)^2 + 2*L1*L2*cos(th2)*(dth1^2+dth1*dth2));  % note *two* changes: adding a "2" and cos(dth2)->cos(th2). 
+%( L1^2* dth1^2 + L2^2*(dth1+dth2)^2 + L1*L2*cos(dth2)*(dth1^2+dth1*dth2));
 
 %% Finding PE
 eqPE = m1*g*L1*sin(th1)/2 + m2*g*(L1*sin(th1) +L2*sin(th1 +th2)); 
