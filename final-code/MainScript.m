@@ -74,10 +74,10 @@ disp(subs(equilibrium_forces, [m1 m2 L1 L2 g], [1 1 1 1 9.81]))
 
 try
     %solve_sol = solve(unusable_eqNLSystem == torques, [ddth1, ddth2]);
-    [eqNLSystem(1), eqNLSystem(2)] = solve(unusable_eqNLSystem == torques, [ddth1, ddth2]);
+    [eqNLSystem(1), eqNLSystem(2)] = solve(unusable_eqNLSystem == -torques, [ddth1, ddth2]);
 catch e
     display('WARNING: solve() didn''t work. Loading default NL equations.')
-    load('solved_for_ddTheta.mat')
+    %load('solved_for_ddTheta.mat')
 end
 
 % eqNLSystem(1) = simplify(solve_sol.ddth1);
@@ -93,8 +93,9 @@ disp(simplify(eqNLSystem(2)))
 
 % % % EquilibriumForceRequired not req for linerizing
 
-
-eqLSystem = linearize(eqNLSystem,state_vars,equilibrium_pose);
+%eqLSystem = linearize(eqNLSystem,state_vars,equilibrium_pose);  % BAD; gives different answer
+eqLSystem(1) = linearize(eqNLSystem(1),state_vars,equilibrium_pose);  % one equation at a time...
+eqLSystem(2) = linearize(eqNLSystem(2),state_vars,equilibrium_pose);
 disp('Now linearized around equilibrium_pose')
 disp('ddTheta1:')
 disp(simplify(eqLSystem(1)))
@@ -126,9 +127,25 @@ disp('ddTheta2:')
 disp(simplify(eqLSystem(2)))
 
 %% Here we are extracting our coefficients
-%Set up:
+state_vars = [th1_err dth1_err...
+              th2_err dth2_err];  
+input_vars = T_err;                        
+                        
+eqLSystem = subs(eqLSystem, [m1 m2 L1 L2 g], [1 1 1 1 10]);  %CHEATING for a second                        
+disp('For our particular system, the linearized version')
+disp('ddTheta1:')
+disp(simplify(eqLSystem(1)))
+disp('ddTheta2:')
+disp(simplify(eqLSystem(2)))
+                        
+[A, B, constants] = to_AB(eqLSystem, state_vars, input_vars);
 
-%add Matt's to_AB code
+% Should throw a WARNING because these equations of motions have constants
+% in them. This is good behavior. The program should remove the constants.
+
+display(A)
+display(B)
+display(constants)
 
 %% Set up with real values to create specific system
 % Real values will allow us to simulate and make contgollers, observers.
