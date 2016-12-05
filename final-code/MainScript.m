@@ -180,7 +180,21 @@ state_var = [th1 dth1 th2 dth2];
 start_point = equilibrium_pose([1,2,4,5]);
 %start_point(3) = start_point(3) - deg2rad(.1);
 
-ODEsim_Plot(eqNLSystem_real_limp,tend,state_var,start_point)
+sol= ODEsetup(eqNLSystem_real_limp,tend,state_var,start_point);
+
+%Plot tje ODE
+ time = sol.x
+ yval = sol.y
+
+for i = [1:4]%draw the graph
+    subplot(2,2,i);
+    plot(time,yval(i,:));
+    title(char(state_var(i)));
+end
+
+
+
+%ODEsim_Plot(eqNLSystem_real_limp,tend,state_var,start_point)
 
 %call an ODE function that plots and animates it
 % function ODEsim_PlotAni(tend, eqNL)
