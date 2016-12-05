@@ -18,7 +18,8 @@ function eqL = get_linearized_function(eqNL,var,pivot)
     jab = jacobian(eqNL,var); %get the partial direvative 
     f0 = subs(eqNL,var,pivot); %the first part of the Taylor series 
     [col,row] = size (var); %get the number of variable in the function
-    for i = 1:row
+    varSize = max(col,row);
+    for i = 1:varSize
         f0 = f0 + subs(jab(i),var,pivot)*(var(i) - pivot(i)); %add the partial direvative
     end
     eqL = f0;

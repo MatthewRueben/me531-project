@@ -20,7 +20,7 @@ function ODEsim_Plot_Control(f,tend,state_var,start_point)
     
     g = {}; %cell array for function handlers
     for n = [1:fSize]
-        g{n} = matlabFunction(f(n), 'vars',state_var)%convert our function to matlab function handler
+        g{n} = matlabFunction(f(n), 'vars',state_var);%convert our function to matlab function handler
     end
     
     [t,y] = ode45(@fu1,tspan,start_point);
