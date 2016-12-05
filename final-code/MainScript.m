@@ -7,7 +7,7 @@
 %% Starting with getting our Kinematics equations
 
 %Clearing workspace
-clear
+clear all
 
 %Setting symbolic and variables
 
@@ -19,8 +19,10 @@ state = [th1 dth1 th2 dth2];
 state_deriv = [dth1 ddth1 dth2 ddth2];
 state_vars = [th1 dth1 ddth1 th2 dth2 ddth2];
 %Pose where system is balanced and linerized around. 
-equilibrium_pose = [deg2rad(60.0) 0.0 0.0
-                    deg2rad(78.6) 0.0 0.0];  
+th1_eqm = 60.0;
+th2_eqm = acosd(-3/2 * cosd(th1_eqm)) - th1_eqm;  % calculated exactly so our feed-forward torques have 3/4 in them instead of ugly fractions. 
+equilibrium_pose = [deg2rad(th1_eqm) 0.0 0.0 ...
+                    deg2rad(th2_eqm) 0.0 0.0];  
 
 syms T  % inputs
 torques = [0, T];
@@ -49,10 +51,21 @@ Lag = eqPE - eqKE; % so eqn should be dL/dx - d/dt(dL/dx_dot) = F|tau
 % Do Lagrange equation
 addpath ./external-code  % so we can call Lagrange() from inside a folder
 %eqNLSystem = Lagrange(Lag, state_vars);
-unusable_eqNLSystem = Lagrange(Lag, state_vars);
+unusable_eqNLSystem = Lagrange(Lag, state_vars);  % First eqn will be for theta1, second eqn for theta2.
 %eqNLSystem = un_uglifier(unusable_eqNLSystem)
 disp('Unsuable Nonlinear system equation:')
-display(unusable_eqNLSystem)
+disp(transpose(unusable_eqNLSystem))
+
+
+%% Solve for feed-forward torque at equilibrium_pose
+equilibrium_forces = -1 * subs(unusable_eqNLSystem, state_vars, equilibrium_pose);
+%my_pose = [pi 0 0 pi/2 0 0];
+%equilibrium_forces = -1 * subs(unusable_eqNLSystem, state_vars, my_pose);
+disp('The torques needed to keep system stable at the equilibrium_pose:')
+disp(transpose(equilibrium_forces))
+disp('For our system, these torques are (should be zero and something negative):')
+disp(subs(equilibrium_forces, [m1 m2 L1 L2 g], [1 1 1 1 9.81]))
+
 
 %% Turns unusable_eqNLSystem equations to usable eqNLSystem
 %The elements need to be set properly to equal ddth1 and ddth2
@@ -73,11 +86,6 @@ disp(simplify(eqNLSystem(1)))
 disp(simplify(eqNLSystem(2)))
 
 
-%% Solve for feed-forward torque at equilibrium_pose
-equilibrium_force = -1 * subs(eqNLSystem(1), state_vars, equilibrium_pose);
-disp('The force needed to keep system stable at the equilibrium_pose:')
-disp(equilibrium_force)
- 
 %% Now linerize the system_equations of motion around the equilibrium_pose
 
 % % % EquilibriumForceRequired not req for linerizing
