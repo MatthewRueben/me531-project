@@ -8,6 +8,7 @@
 
 %Clearing workspace
 clear all
+close all
 
 %Setting symbolic and variables
 
@@ -174,10 +175,10 @@ display(constants_real)
 eqNLSystem_real = subs(eqNLSystem, system_consts, constant_choices);
 eqNLSystem_real_limp = subs(eqNLSystem_real, T, 0);
 
-tend = 2;  % seconds
+tend = 1;  % seconds
 state_var = [th1 dth1 th2 dth2];
 start_point = equilibrium_pose([1,2,4,5]);
-%start_point(4) = start_point(4) - deg2rad(.1);
+%start_point(3) = start_point(3) - deg2rad(.1);
 
 ODEsim_Plot(eqNLSystem_real_limp,tend,state_var,start_point)
 
@@ -194,7 +195,7 @@ ODEsim_Plot(eqNLSystem_real_limp,tend,state_var,start_point)
 %% Design controller
 
 C_real = [0 0 1 0];  % just observe Theta2
-lambdas = [1.0, 1.0, 1.0, 1.0] * 0.5;
+lambdas = [1.0, 1.0, 1.0, 1.0] * 2.0;
 
 K = DesignController(A_real, B_real, C_real, lambdas);  
 
@@ -216,10 +217,10 @@ T_equilibrium_real = subs(T_equilibrium, system_consts, constant_choices);
 
 eqNLSystem_real_control = subs(eqNLSystem_real, T, T_equilibrium_real + T_control);
 
-tend = 3;  % seconds
+tend = 5;  % seconds
 state_var = [th1 dth1 th2 dth2];
 start_point = equilibrium_pose([1,2,4,5]);
-start_point(4) = start_point(4) - deg2rad(.1);
+start_point(1) = start_point(1) - deg2rad(10);
 
 figure;
 ODEsim_Plot(eqNLSystem_real_control,tend,state_var,start_point)
