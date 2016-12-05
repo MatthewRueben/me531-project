@@ -175,11 +175,12 @@ display(constants_real)
 eqNLSystem_real = subs(eqNLSystem, system_consts, constant_choices);
 eqNLSystem_real_limp = subs(eqNLSystem_real, T, 0);
 
-tend = 1;  % seconds
+tend = 2;  % seconds
 state_var = [th1 dth1 th2 dth2];
 start_point = equilibrium_pose([1,2,4,5]);
 %start_point(3) = start_point(3) - deg2rad(.1);
 
+%% Animate the limp system 
 sol= ODEsetup(eqNLSystem_real_limp,tend,state_var,start_point);
 
 %Plot tje ODE
@@ -192,18 +193,7 @@ for i = [1:4]%draw the graph
     title(char(state_var(i)));
 end
 
-
-
-%ODEsim_Plot(eqNLSystem_real_limp,tend,state_var,start_point)
-
-%call an ODE function that plots and animates it
-% function ODEsim_PlotAni(tend, eqNL)
-% Uses ODE45 to plot and to animate system
-% Takes in tend, time variable and eqNL
-
-% function ODEsimani (tend, eqNL)
-% Uses ODE45 to plot and to animate system
-% Takes in tend, time variable and eqNL
+animation_make(false, false, sol, tend);
 
 
 %% Design controller
@@ -218,7 +208,7 @@ K = DesignController(A_real, B_real, C_real, lambdas);
 
 %% Simulate and Animate with contollers 
 
-% Add controller to NL equations of motion.
+%% Add controller to NL equations of motion.
 th1_error = th1 - equilibrium_pose(1);
 dth1_error = dth1 - equilibrium_pose(2);
 th2_error = th2 - equilibrium_pose(4);
@@ -236,12 +226,23 @@ state_var = [th1 dth1 th2 dth2];
 start_point = equilibrium_pose([1,2,4,5]);
 start_point(1) = start_point(1) - deg2rad(10);
 
-figure;
-ODEsim_Plot(eqNLSystem_real_control,tend,state_var,start_point)
+%% Animate the controlled system 
+sol= ODEsetup(eqNLSystem_real_control,tend,state_var,start_point);
 
-% function ODEsimani (tend, eqNL)
-% Uses ODE45 to plot and to animate system
-% Takes in tend, time variable and eqNL
+%Plot tje ODE
+ time = sol.x
+ yval = sol.y
+
+for i = [1:4]%draw the graph
+    subplot(2,2,i);
+    plot(time,yval(i,:));
+    title(char(state_var(i)));
+end
+
+animation_make(false, false, sol, tend);
+
+% figure;
+% ODEsim_Plot(eqNLSystem_real_control,tend,state_var,start_point)
 
 %% function Ls =DesignObserver(eqL, lambdas)
 % Creates observer for system
@@ -251,13 +252,19 @@ ODEsim_Plot(eqNLSystem_real_control,tend,state_var,start_point)
 %look for obs
 
 %% Simulate and Animate with observers 
+%% Animate the controlled and observed system 
+sol= ODEsetup(eqNLSystem_real_observed,tend,state_var,start_point);
 
-% might have to do some differrnt plotting to show this. 
+%Plot tje ODE
+ time = sol.x
+ yval = sol.y
 
-% function ODEsimani (tend, eqNL)
-% Uses ODE45 to plot and to animate system
-% Takes in tend, time variable and eqNL
+for i = [1:8]%draw the graph
+    subplot(4,2,i);
+    plot(time,yval(i,:));
+    title(char(state_var(i)));
+end
 
-
+animation_make(false, false, sol, tend);
 
 
