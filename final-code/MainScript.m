@@ -24,6 +24,8 @@ th1_eqm = 60.0;
 th2_eqm = acosd(-3/2 * cosd(th1_eqm)) - th1_eqm;  % calculated exactly so our feed-forward torques have 3/4 in them instead of ugly fractions. 
 equilibrium_pose = [deg2rad(th1_eqm) 0.0 0.0 ...
                     deg2rad(th2_eqm) 0.0 0.0];  
+%equilibrium_pose = [pi/2 0 0 0 0 0];
+
 
 syms T  % inputs
 torques = [0, T];
@@ -172,11 +174,12 @@ display(constants_real)
 eqNLSystem_real = subs(eqNLSystem, system_consts, constant_choices);
 eqNLSystem_real_limp = subs(eqNLSystem_real, T, 0);
 
-tend = 3.7;  % seconds
+tend = 2;  % seconds
 state_var = [th1 dth1 th2 dth2];
 start_point = equilibrium_pose([1,2,4,5]);
+%start_point(4) = start_point(4) - deg2rad(.1);
 
-ODEsim_Plot_Control(eqNLSystem_real_limp,tend,state_var,start_point)
+ODEsim_Plot(eqNLSystem_real_limp,tend,state_var,start_point)
 
 %call an ODE function that plots and animates it
 % function ODEsim_PlotAni(tend, eqNL)
@@ -191,7 +194,7 @@ ODEsim_Plot_Control(eqNLSystem_real_limp,tend,state_var,start_point)
 %% Design controller
 
 C_real = [0 0 1 0];  % just observe Theta2
-lambdas = [2.0, 2.0, 2.0, 2.0];
+lambdas = [1.0, 1.0, 1.0, 1.0] * 0.5;
 
 K = DesignController(A_real, B_real, C_real, lambdas);  
 
@@ -199,6 +202,27 @@ K = DesignController(A_real, B_real, C_real, lambdas);
 % % % k= place(A,B, [ 1, 2]);
 
 %% Simulate and Animate with contollers 
+
+% Add controller to NL equations of motion.
+th1_error = th1 - equilibrium_pose(1);
+dth1_error = dth1 - equilibrium_pose(2);
+th2_error = th2 - equilibrium_pose(4);
+dth2_error = dth2 - equilibrium_pose(5);
+T_control = -K(1)*th1_error + ...
+            -K(2)*dth1_error + ...
+            -K(3)*th2_error + ...
+            -K(4)*dth2_error;
+T_equilibrium_real = subs(T_equilibrium, system_consts, constant_choices);            
+
+eqNLSystem_real_control = subs(eqNLSystem_real, T, T_equilibrium_real + T_control);
+
+tend = 3;  % seconds
+state_var = [th1 dth1 th2 dth2];
+start_point = equilibrium_pose([1,2,4,5]);
+start_point(4) = start_point(4) - deg2rad(.1);
+
+figure;
+ODEsim_Plot(eqNLSystem_real_control,tend,state_var,start_point)
 
 % function ODEsimani (tend, eqNL)
 % Uses ODE45 to plot and to animate system
