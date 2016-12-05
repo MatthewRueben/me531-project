@@ -185,8 +185,8 @@ start_point = equilibrium_pose([1,2,4,5]);
 sol= ODEsetup(eqNLSystem_real_limp,tend,state_var,start_point);
 
 %Plot tje ODE
- time = sol.x
- yval = sol.y
+ time = sol.x;
+ yval = sol.y;
 
 for i = [1:4]%draw the graph
     subplot(2,2,i);
