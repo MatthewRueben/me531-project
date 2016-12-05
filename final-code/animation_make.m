@@ -46,7 +46,7 @@ function animation_demonstration(export,skip, solv, timeend)
 		= @animation_demo_draw_cosine; % frame function, defined below in file
 
 	% Declare timing
-	timing.duration = 20; % three second animation
+	timing.duration = 30; % three second animation
 	timing.fps = 15;     % create frames for 15 fps animation
 	timing.pacing = @(y) softspace(0,1,y); % Use a soft start and end, using the included softstart function
 
@@ -73,8 +73,8 @@ function h = animation_demo_create_elements
 
 	h.ax = axes('Parent',h.f);                   % Create axes for the plot
     axis square
-	set(h.ax,'Xlim',[-1, 1],'Ylim',[-1,1]);   % Set the range of the plot
-	set(h.ax,'Xtick',-1:0.25:1,'YTick',-1:0.25:1);   % Set the tick locations
+	set(h.ax,'Xlim',[-2, 2],'Ylim',[-2,2]);   % Set the range of the plot
+	set(h.ax,'Xtick',-2:0.5:2,'YTick',-2:0.5:2);   % Set the tick locations
 	set(h.ax,'FontSize',16);                       % Set the axis font size
 	xlabel(h.ax, 'x')							 % Label the axes
 	ylabel(h.ax, 'y')
@@ -107,8 +107,8 @@ function frame_info = animation_demo_draw_cosine(frame_info,tau)
     
     % The end of the first 0.5 meter link 
     % tip= [(cos(theta)*0.5)+4, sin(theta)*0.5]
-    tip1= [cos(theta1), sin(theta1)]*0.5;
-    tip2= tip1+[cos(theta2), sin(theta2)]*0.25;	
+    tip1= [cos(theta1), sin(theta1)]*1;
+    tip2= tip1 + [cos(theta1 + theta2), sin(theta1 + theta2)]*1;	
     
       	
 	% Set one line in the plot to the calculated x and y points
