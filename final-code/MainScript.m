@@ -137,7 +137,11 @@ A = [0 1 0 0;
      A(1,:);
      0 0 0 1;
      A(2,:)    ];
-
+B = [0;
+     B(1);
+     0;
+     B(2)  ];
+ 
 display(A)
 display(B)
 display(constants)
@@ -184,12 +188,12 @@ ODEsim_Plot_Control(eqNLSystem_real_limp,tend,state_var,start_point)
 % Takes in tend, time variable and eqNL
 
 
-%% function Ks =DesignController(eqL, lambdas)
-% Created controller for system
-%INPUTS: eqL, takes in linear equation of motion, lambdas are the poles
-%OUTPUT: Ks, an matrix/ cell array of K controller values
+%% Design controller
 
-%Simulate and Animate with controllers 
+C_real = [0 0 1 0];  % just observe Theta2
+lambdas = [2.0, 2.0, 2.0, 2.0];
+
+K = DesignController(A_real, B_real, C_real, lambdas);  
 
 % % % id equilibrium balances, then no e torque
 % % % k= place(A,B, [ 1, 2]);
