@@ -63,6 +63,7 @@ equilibrium_forces = -1 * subs(unusable_eqNLSystem, state_vars, equilibrium_pose
 %equilibrium_forces = -1 * subs(unusable_eqNLSystem, state_vars, my_pose);
 disp('The torques needed to keep system stable at the equilibrium_pose:')
 disp(transpose(equilibrium_forces))
+T_equilibrium = equilibrium_forces(2);
 disp('For our system, these torques are (should be zero and something negative):')
 disp(subs(equilibrium_forces, [m1 m2 L1 L2 g], [1 1 1 1 9.81]))
 
@@ -101,7 +102,28 @@ disp('ddTheta2:')
 disp(simplify(eqLSystem(2)))
 
 %get conver to canon
-    
+
+
+%% Now switch to "tilda'd" coordinates. 
+%So th1 starts at 60deg, th2 starts at 78.6deg, and T starts at the
+%feed-forward torque of -7.5 N-m. 
+
+% "err" is for "error", i.e., how far from equilibrium the system is.
+syms th1_err dth1_err ddth1_err th2_err dth2_err ddth2_err
+syms T_err
+
+state_vars_err = [th1_err+equilibrium_pose(1) dth1_err ddth1_err...
+                  th2_err+equilibrium_pose(4) dth2_err ddth2_err];
+
+eqLSystem = subs(eqLSystem, state_vars, state_vars_err);
+eqLSystem = subs(eqLSystem, T, T_err + T_equilibrium);
+eqLSystem = simplify(eqLSystem);
+
+disp('Now state variables and torques are about linearization point (simpler)')
+disp('ddTheta1:')
+disp(simplify(eqLSystem(1)))
+disp('ddTheta2:')
+disp(simplify(eqLSystem(2)))
 
 %% Here we are extracting our coefficients
 %Set up:
