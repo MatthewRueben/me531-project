@@ -2,7 +2,6 @@ y0 = [pi/2+0.01 0 0 0];
 tspan = [0 20];
 [t,y] = ode45(@fu,tspan,y0);
 plot(t,y(:,1));
-
 %draw graph
 hold on
 plot(t,y(:,2));
