@@ -12,7 +12,8 @@ clear all
 %Setting symbolic and variables
 
 syms m1 m2 L1 L2 L0 g % system consts
-system_consts = [m1 m2 L1 L2];
+system_consts = [m1 m2 L1 L2 g];
+constant_choices = [1 1 1 1 9.81];
 %g = 9.81; % need a double? 
 syms th1 dth1 ddth1 th2 dth2 ddth2   % state variables
 state = [th1 dth1 th2 dth2];
@@ -65,7 +66,7 @@ disp('The torques needed to keep system stable at the equilibrium_pose:')
 disp(transpose(equilibrium_forces))
 T_equilibrium = equilibrium_forces(2);
 disp('For our system, these torques are (should be zero and something negative):')
-disp(subs(equilibrium_forces, [m1 m2 L1 L2 g], [1 1 1 1 9.81]))
+disp(subs(equilibrium_forces, system_consts, constant_choices))
 
 
 %% Turns unusable_eqNLSystem equations to usable eqNLSystem
@@ -131,17 +132,11 @@ state_vars = [th1_err dth1_err...
               th2_err dth2_err];  
 input_vars = T_err;                        
                         
-eqLSystem = subs(eqLSystem, [m1 m2 L1 L2 g], [1 1 1 1 10]);  %CHEATING for a second                        
-disp('For our particular system, the linearized version')
-disp('ddTheta1:')
-disp(simplify(eqLSystem(1)))
-disp('ddTheta2:')
-disp(simplify(eqLSystem(2)))
-                        
 [A, B, constants] = to_AB(eqLSystem, state_vars, input_vars);
-
-% Should throw a WARNING because these equations of motions have constants
-% in them. This is good behavior. The program should remove the constants.
+A = [0 1 0 0;
+     A(1,:);
+     0 0 0 1;
+     A(2,:)    ];
 
 display(A)
 display(B)
@@ -149,6 +144,16 @@ display(constants)
 
 %% Set up with real values to create specific system
 % Real values will allow us to simulate and make contgollers, observers.
+%eqLSystem = subs(eqLSystem, [m1 m2 L1 L2 g], [1 1 1 1 10]); 
+
+A_real = subs(A, system_consts, constant_choices);                       
+B_real = subs(B, system_consts, constant_choices);                       
+constants_real = subs(constants, system_consts, constant_choices);                       
+disp('For our particular system, the linearized version')
+display(A_real)
+display(B_real)
+display(constants_real)
+                        
 
 % Add the T to the eqSystems as a symbol. 
 % Controller (K *state_variables)=Torque

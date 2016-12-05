@@ -19,6 +19,7 @@ input_indices = length(state_vars)+1 : length(states_and_inputs);
 %% Remove constant terms that do not have any of the variables in "state_vars".
 all_zeros = zeros(size(states_and_inputs));
 constants = subs(linear_eqns, states_and_inputs, all_zeros);
+constants = simplify(constants);
 if constants ~= 0
     display('WARNING: your equations have some constant terms! Bad.')
     linear_eqns = linear_eqns - constants;
@@ -66,9 +67,9 @@ end
 % Calculate A and B matrices
 %display(coeffs_state)
 %display(coeffs_state_deriv)
-A = coeffs_state;
+A = simplify(coeffs_state);
 %A = inv(coeffs_state_deriv) * -1 * coeffs_state;  % -1 is to put state variables on other side of equals sign from state_deriv variables.
-B = coeffs_inputs;
+B = simplify(coeffs_inputs);
 %B = inv(coeffs_state_deriv) * -1 * coeffs_inputs;  % KEEP THE -1 ???
 
 end
