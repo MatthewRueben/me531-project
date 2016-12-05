@@ -44,5 +44,8 @@ function ODEsim_Plot_Control(f,tend,state_var,start_point)
             i = i + 2;
             j = j + 1;
         end
+        % Uncomment the following two lines to lock the bottom link.
+        %yd(1) = 0;
+        %yd(2) = 0;
     end
 end
