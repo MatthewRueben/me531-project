@@ -165,6 +165,15 @@ display(constants_real)
 
 %% Simulate and Animate natural system without any torque
 
+eqNLSystem_real = subs(eqNLSystem, system_consts, constant_choices);
+eqNLSystem_real_limp = subs(eqNLSystem_real, T, 0);
+
+tend = 3.7;  % seconds
+state_var = [th1 dth1 th2 dth2];
+start_point = equilibrium_pose([1,2,4,5]);
+
+ODEsim_Plot_Control(eqNLSystem_real_limp,tend,state_var,start_point)
+
 %call an ODE function that plots and animates it
 % function ODEsim_PlotAni(tend, eqNL)
 % Uses ODE45 to plot and to animate system
