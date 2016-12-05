@@ -17,7 +17,7 @@ input_indices = length(state_vars)+1 : length(states_and_inputs);
 
 
 %% Remove constant terms that do not have any of the variables in "state_vars".
-all_zeros = zeros(length(states_and_inputs),1);
+all_zeros = zeros(size(states_and_inputs));
 constants = subs(linear_eqns, states_and_inputs, all_zeros);
 if constants ~= 0
     display('WARNING: your equations have some constant terms! Bad.')

@@ -77,7 +77,7 @@ try
     [eqNLSystem(1), eqNLSystem(2)] = solve(unusable_eqNLSystem == -torques, [ddth1, ddth2]);
 catch e
     display('WARNING: solve() didn''t work. Loading default NL equations.')
-    %load('solved_for_ddTheta.mat')
+    load('solved_for_ddTheta.mat')
 end
 
 % eqNLSystem(1) = simplify(solve_sol.ddth1);
