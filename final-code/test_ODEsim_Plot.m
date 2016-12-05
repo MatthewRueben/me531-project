@@ -14,4 +14,4 @@ f =[-3/(mAB*LAB*LAB)*((1/2*mAB*g*LAB + mBC*g*LAB)*cos(TA)+mBC*g*LBC*cos(TA+TB)),
     1/(2*LBC)*(-g*cos(TA+TB)+g*cos(0+pi/2))+KXerr/(2*mBC*LBC*LBC)];
 var_input = [TA TAd TB TBd];
 start_ponit = [pi/2+0.01 0 0 0];
-ODEsim_Plot_Control (f,20,var_input,start_ponit);
+ODEsim_Plot (f,20,var_input,start_ponit);
