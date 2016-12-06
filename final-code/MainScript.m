@@ -315,12 +315,12 @@ eqLObserver = simplify(eqLObserver);
 eqSystem_real_controller_observer = [eqNLSystem_real_control_4eqns;
                                        eqLObserver                   ];
 
-tend = 1.0;  % seconds
+tend = 10.0;  % seconds
 state_var = [th1     dth1     th2     dth2  ...
              th1_hat dth1_hat th2_hat dth2_hat];
 start_point = equilibrium_pose([1,2,4,5,1,2,4,5]);
-start_point(3) = start_point(3) + deg2rad(.1);  % real system
-start_point(7) = start_point(7) + deg2rad(.1);  % simulated system
+start_point(3) = start_point(3) + deg2rad(.5);  % real system
+start_point(7) = start_point(7) + deg2rad(.5);  % simulated system
 
 
 %% Animate the controlled and observed system 
