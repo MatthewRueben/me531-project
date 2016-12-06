@@ -38,8 +38,9 @@ for lambda = [lambdas]
 end
 a = coeffs(char_poly);  % these are in REVERSE ORDER
 
-A_eq_cof = [0          1;
-            -1*a(1:end-1)]';  % note transpose relative to CCF
+n = length(lambdas);
+A_eq_cof = [zeros(n-1,1) eye(n-1);
+        -1*a(1:end-1)]';  % note transpose relative to CCF
 display(A_eq_cof)
 
 % Calculate L in COF
