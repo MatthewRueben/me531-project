@@ -10,7 +10,7 @@
 %
 %NOTE: This is hard code for controller with 4 elements in the state_var
 
-function sol= ODEsetup(f,tend,state_var,start_point)
+function sol= ODEsetup_observer(f,tend,state_var,start_point)
     tspan = [0 tend];
     
     [col1 row1] = size(f);
@@ -29,14 +29,15 @@ function sol= ODEsetup(f,tend,state_var,start_point)
         h = num2cell(y);%convert elemets of the y array into cell array in order to put them into the function handler        
         yd = zeros(varSize,1);
         i = 1;
-        j = 1;
         %put the function into the right position
         %assume the data have this order [a ad b bd c cd d dd]
-        while i < varSize 
-            yd(i) = y(i+1);
-            yd(i + 1) = g{j}(h{:});
-            i = i + 2;
-            j = j + 1;
+        while i <= varSize 
+            %yd(i) = y(i+1);
+            %yd(i + 1) = g{j}(h{:});
+            %i = i + 2;
+            %j = j + 1;
+            yd(i) = g{i}(h{:});
+            i = i + 1;
         end
     end
 end
