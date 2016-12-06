@@ -176,10 +176,10 @@ display(constants_real)
 eqNLSystem_real = subs(eqNLSystem, system_consts, constant_choices);
 eqNLSystem_real_limp = subs(eqNLSystem_real, T, 0);
 
-tend = 2;  % seconds
+tend = 10;  % seconds
 state_var = [th1 dth1 th2 dth2];
 start_point = equilibrium_pose([1,2,4,5]);
-%start_point(3) = start_point(3) - deg2rad(.1);
+start_point(1) = start_point(1) - deg2rad(.1);
 
 %% Animate the limp system 
 sol= ODEsetup(eqNLSystem_real_limp,tend,state_var,start_point);
@@ -188,6 +188,7 @@ sol= ODEsetup(eqNLSystem_real_limp,tend,state_var,start_point);
  time = sol.x;
  yval = sol.y;
 
+figure(1)
 for i = [1:4]%draw the graph
     subplot(2,2,i);
     plot(time,yval(i,:));
@@ -201,6 +202,7 @@ animation_make(false, false, sol, tend);
 
 C_real = [0 0 1 0];  % just observe Theta2
 lambdas = [1.0, 1.0, 1.0, 1.0] * 2.0;
+%lambdas = [1 2 3 4];
 
 K = DesignController(A_real, B_real, C_real, lambdas);  
 
@@ -220,20 +222,21 @@ T_control = -K(1)*th1_error + ...
             -K(4)*dth2_error;
 T_equilibrium_real = subs(T_equilibrium, system_consts, constant_choices);            
 
-eqNLSystem_real_control = subs(eqNLSystem_real, T, T_equilibrium_real + T_control);
+eqNLSystem_real_control = subs(eqNLSystem_real, T, T_equilibrium_real - T_control);
 
-tend = 5;  % seconds
+tend = 10;  % seconds
 state_var = [th1 dth1 th2 dth2];
 start_point = equilibrium_pose([1,2,4,5]);
-start_point(1) = start_point(1) - deg2rad(10);
+start_point(3) = start_point(3) + deg2rad(1);
 
 %% Animate the controlled system 
 sol= ODEsetup(eqNLSystem_real_control,tend,state_var,start_point);
 
 %Plot tje ODE
- time = sol.x
- yval = sol.y
+ time = sol.x;
+ yval = sol.y;
 
+figure(2)
 for i = [1:4]%draw the graph
     subplot(2,2,i);
     plot(time,yval(i,:));
@@ -249,20 +252,101 @@ animation_make(false, false, sol, tend);
 % Creates observer for system
 %INPUTS: eqL, takes in linear equation of motion, lambdas are the poles
 %OUTPUT: Ls, an matrix/ cell array of L observer values
+%lambdas_obs = [1.0, 1.0, 1.0, 1.0] * .5;
+lambdas_obs = [1.0, 2.0, 3.0, 4.0];
 
-%look for obs
+L = DesignObserver(A_real, B_real, C_real, lambdas_obs); 
+%L = L * 0.01;
+L(:) = 0;  % no correction for wrong measurements
+%L = place(A_real', C_real', [1,2,3,4]*-1)';  % MATLAB's answer
 
 %% Simulate and Animate with observers 
+
+%% Add observer to system
+
+syms th1_hat dth1_hat th2_hat dth2_hat
+
+% Part 1/2: controller is now based off of *measured* state instead of true
+% state
+
+% Need all 4 equations for ODEsetup_observer because the observer needs to
+% specify all 4 equations because L(y-y_hat) impacts all 4 state
+% derivatives.
+eqNLSystem_real_control_4eqns = eqNLSystem_real_control;
+eqNLSystem_real_control_4eqns = [dth1;
+                                 eqNLSystem_real_control_4eqns(1);
+                                 dth2;
+                                 eqNLSystem_real_control_4eqns(2)];
+% FOR NOW LEAVING THIS THE SAME SO IT DOESN'T DESTABILIZE WHILE I'M TESTING
+% THE OBSERVER STABILITY
+
+
+% Part 2/2: observer simulation equations. Based off of linear dynamics.
+%
+% Start with eqLSystem, the linearized dynamics, which are still "tilda'd",
+% that is, in terms of the state *error*, which is all zeros *at the
+% linearization point*. 
+eqLSystem_real = subs(eqLSystem, system_consts, constant_choices);
+eqLSystem_real_control = subs(eqLSystem_real, T_err, -T_control);  % add controller (T_equilibrium is already there from above)
+
+state_vars_err = [th1_err dth1_err ddth1_err...
+                  th2_err dth2_err ddth2_err];
+state_vars_no_err = [th1-equilibrium_pose(1) dth1 ddth1...
+                     th2-equilibrium_pose(4) dth2 ddth2];
+eqLSystem_real_control_noTildas = subs(eqLSystem_real_control, state_vars_err, state_vars_no_err);  % switch back from tildas to no tildas.
+
+state_var_noHat = [th1     dth1     th2     dth2];
+state_var_hat =   [th1_hat dth1_hat th2_hat dth2_hat];
+eqLObserver = subs(eqLSystem_real_control_noTildas, state_var_noHat, state_var_hat);
+
+% So we can add L(y-y_hat), which is 4x1. 
+eqLObserver = [dth1_hat;
+               eqLObserver(1);
+               dth2_hat;
+               eqLObserver(2)];
+
+% Add L(y-y_hat).
+y = C_real * state_var_noHat';
+y_hat = C_real * state_var_hat';
+eqLObserver = eqLObserver + L*(y-y_hat);  % does L need to have its sign flipped here?
+eqLObserver = simplify(eqLObserver);
+
+% Put the two systems together.
+eqSystem_real_controller_observer = [eqNLSystem_real_control_4eqns;
+                                       eqLObserver                   ];
+
+tend = 1.0;  % seconds
+state_var = [th1     dth1     th2     dth2  ...
+             th1_hat dth1_hat th2_hat dth2_hat];
+start_point = equilibrium_pose([1,2,4,5,1,2,4,5]);
+start_point(3) = start_point(3) + deg2rad(.1);  % real system
+start_point(7) = start_point(7) + deg2rad(.1);  % simulated system
+
+
 %% Animate the controlled and observed system 
-sol= ODEsetup(eqNLSystem_real_observed,tend,state_var,start_point);
+%sol= ODEsetup_observer(eqSystem_real_controller_observer(1:4),tend,state_var(1:4),start_point(1:4));
+% ^ Just the non-linear system
+% v With the observer
+sol= ODEsetup_observer(eqSystem_real_controller_observer,tend,state_var,start_point);
 
 %Plot tje ODE
- time = sol.x
- yval = sol.y
+ time = sol.x;
+ yval = sol.y;
 
-for i = [1:8]%draw the graph
-    subplot(4,2,i);
-    plot(time,yval(i,:));
+figure(3); clf
+
+% Real system
+for i = [1:4]%draw the graph
+    subplot(2,2,i);
+    plot(time,yval(i,:),'k');
+    title(char(state_var(i)));
+end
+
+% Observer
+for i = [1:4]%draw the graph
+    subplot(2,2,i);
+    hold on
+    plot(time,yval(i+4,:),'r');  % note the "+4" to select observer values
     title(char(state_var(i)));
 end
 
