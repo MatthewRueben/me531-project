@@ -269,6 +269,19 @@ syms th1_hat dth1_hat th2_hat dth2_hat
 % Part 1/2: controller is now based off of *measured* state instead of true
 % state
 
+% Comment this out to control the real (non-linear) system with real state
+% variables instead of "hatted" estimates.
+% th1_error_hat = th1_hat - equilibrium_pose(1);
+% dth1_error_hat = dth1_hat - equilibrium_pose(2);
+% th2_error_hat = th2_hat - equilibrium_pose(4);
+% dth2_error_hat = dth2_hat - equilibrium_pose(5);
+% T_control_hat = -K(1)*th1_error_hat + ...
+%             -K(2)*dth1_error_hat + ...
+%             -K(3)*th2_error_hat + ...
+%             -K(4)*dth2_error_hat;   % torque calculated with state estimate ("hatted" state variables)
+% T_equilibrium_real = subs(T_equilibrium, system_consts, constant_choices);  % already calculated above, but whatever          
+% eqNLSystem_real_control = subs(eqNLSystem_real, T, T_equilibrium_real - T_control_hat);
+
 % Need all 4 equations for ODEsetup_observer because the observer needs to
 % specify all 4 equations because L(y-y_hat) impacts all 4 state
 % derivatives.
@@ -277,9 +290,11 @@ eqNLSystem_real_control_4eqns = [dth1;
                                  eqNLSystem_real_control_4eqns(1);
                                  dth2;
                                  eqNLSystem_real_control_4eqns(2)];
-% FOR NOW LEAVING THIS THE SAME SO IT DOESN'T DESTABILIZE WHILE I'M TESTING
-% THE OBSERVER STABILITY
 
+% 
+
+                             
+                             
 
 % Part 2/2: observer simulation equations. Based off of linear dynamics.
 %
@@ -319,8 +334,8 @@ tend = 10.0;  % seconds
 state_var = [th1     dth1     th2     dth2  ...
              th1_hat dth1_hat th2_hat dth2_hat];
 start_point = equilibrium_pose([1,2,4,5,1,2,4,5]);
-start_point(3) = start_point(3) + deg2rad(.5);  % real system
-start_point(7) = start_point(7) + deg2rad(.5);  % simulated system
+start_point(3) = start_point(3) + deg2rad(0.5);  % real system
+start_point(7) = start_point(7) + deg2rad(0.5);  % simulated system
 
 
 %% Animate the controlled and observed system 
